@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T&C QC Inspection System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Mobile overlay -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Hamburger -->
+  <button id="hamburger" onclick="toggleSidebar()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- ════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════ -->
+  <nav id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">✅</div>
+      <div class="sidebar-logo-text">T&amp;<span>C</span></div>
+    </div>
+
+    <div class="sidebar-nav">
+
+      <div class="nav-section-label" data-en="Main" data-ar="الرئيسية">Main</div>
+
+      <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon">📊</span>
+        <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+      </button>
+
+      <button class="nav-item" data-page="inspections" onclick="navigate('inspections')">
+        <span class="nav-icon">🔍</span>
+        <span data-en="Inspections" data-ar="الفحوصات">Inspections</span>
+      </button>
+
+      <button class="nav-item" data-page="new-inspection" onclick="navigate('new-inspection')">
+        <span class="nav-icon">➕</span>
+        <span data-en="New Inspection" data-ar="فحص جديد">New Inspection</span>
+      </button>
+
+      <!-- Supervisor + Admin -->
+      <div class="nav-section-label" id="mgmt-section-label" style="display:none"
+           data-en="Management" data-ar="الإدارة">Management</div>
+
+      <button class="nav-item" data-page="defects-mgmt" id="defects-nav" style="display:none"
+              onclick="navigate('defects-mgmt')">
+        <span class="nav-icon">⚠️</span>
+        <span data-en="Defects List" data-ar="قائمة العيوب">Defects List</span>
+      </button>
+
+      <button class="nav-item" data-page="stages-mgmt" id="stages-nav" style="display:none"
+              onclick="navigate('stages-mgmt')">
+        <span class="nav-icon">📍</span>
+        <span data-en="Stages" data-ar="المراحل">Stages</span>
+      </button>
+
+      <button class="nav-item" data-page="lines-mgmt" id="lines-nav" style="display:none"
+              onclick="navigate('lines-mgmt')">
+        <span class="nav-icon">🏭</span>
+        <span data-en="Lines" data-ar="الخطوط">Lines</span>
+      </button>
+
+      <!-- Admin only -->
+      <div class="nav-section-label" id="admin-section-label" style="display:none"
+           data-en="Admin" data-ar="المسؤول">Admin</div>
+
+      <button class="nav-item" data-page="users-mgmt" id="users-nav" style="display:none"
+              onclick="navigate('users-mgmt')">
+        <span class="nav-icon">⚙️</span>
+        <span data-en="Users" data-ar="المستخدمون">Users</span>
+      </button>
+
+      <button class="nav-item" data-page="backup" id="backup-nav" style="display:none"
+              onclick="navigate('backup')">
+        <span class="nav-icon">💾</span>
+        <span data-en="Backup &amp; Restore" data-ar="النسخ والاستعادة">Backup &amp; Restore</span>
+      </button>
+
+    </div>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+
+      <!-- Storage indicator -->
+      <div class="storage-bar-wrap">
+        <div class="storage-bar-track">
+          <div class="storage-bar-fill" id="storage-bar-fill"></div>
+        </div>
+        <div class="storage-bar-label" id="storage-bar-label">Storage: -- KB</div>
+      </div>
+
+      <!-- Theme toggle -->
+      <div class="theme-toggle">
+        <div class="theme-toggle-label">
+          <span>🌙</span>
+          <span data-en="Dark Mode" data-ar="الوضع الداكن">Dark Mode</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="theme-toggle-input" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Language toggle -->
+      <div class="lang-toggle" id="langToggle" role="button" tabindex="0">
+        <div class="lang-toggle-label">
+          <span>🌐</span>
+          <span data-en="Language" data-ar="اللغة">Language</span>
+        </div>
+        <span class="lang-badge" id="langBadge">EN</span>
+      </div>
+
+      <!-- User pill -->
+      <div class="user-pill">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-display">--</div>
+          <div class="user-role" id="user-role-display">--</div>
+        </div>
+        <button class="logout-btn" id="logout-btn" title="Logout" aria-label="Logout">⤻</button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════ -->
+  <main id="main">
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <div class="dash-header">
+        <div>
+          <div class="page-title" id="dash-greeting">Dashboard</div>
+          <div class="page-subtitle" data-en="Here's your QC activity at a glance" data-ar="إليك نشاط مراقبة الجودة دفعة واحدة">Here's your QC activity at a glance</div>
+        </div>
+        <button class="btn btn-new" onclick="navigate('new-inspection')">
+          + <span data-en="New Inspection" data-ar="فحص جديد">New Inspection</span>
+        </button>
+      </div>
+
+      <!-- Fail Alert -->
+      <div class="fail-alert" id="dash-fail-alert" style="display:none">
+        ⚠️ <span id="dash-fail-alert-text"></span>
+      </div>
+
+      <!-- Date filter -->
+      <div class="dash-filter-bar">
+        <div class="form-group">
+          <label class="form-label" data-en="From" data-ar="من">From</label>
+          <input type="date" class="form-input" id="dashDateFrom" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="To" data-ar="إلى">To</label>
+          <input type="date" class="form-input" id="dashDateTo" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Line" data-ar="الخط">Line</label>
+          <select class="form-input" id="dashLineFilter" style="padding:9px 14px;font-size:13px">
+            <option value="" data-en="All Lines" data-ar="كل الخطوط">All Lines</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Style" data-ar="الستايل">Style</label>
+          <input type="text" class="form-input" id="dashStyleFilter"
+                 data-placeholder-en="Search style..." data-placeholder-ar="بحث بالستايل..."
+                 placeholder="Search style..." style="padding:9px 14px;font-size:13px" />
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;gap:8px;flex-direction:row">
+          <button class="btn btn-new btn-sm" id="dashFilterBtn" style="margin-bottom:0">
+            <span data-en="Filter" data-ar="تصفية">Filter</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="dashClearBtn">
+            <span data-en="Clear" data-ar="مسح">Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label" data-en="Total Inspections" data-ar="إجمالي الفحوصات">Total Inspections</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" id="bar-total" style="width:100%"></div></div>
+        </div>
+        <div class="stat-card stat-passed">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statPass">0</div>
+          <div class="stat-label" data-en="Passed" data-ar="ناجح">Passed</div>
+          <div class="stat-bar-wrap"><div class="stat-bar stat-bar-passed" id="bar-pass"></div></div>
+        </div>
+        <div class="stat-card stat-failed">
+          <div class="stat-icon">❌</div>
+          <div class="stat-value" id="statFail">0</div>
+          <div class="stat-label" data-en="Failed" data-ar="راسب">Failed</div>
+          <div class="stat-bar-wrap"><div class="stat-bar stat-bar-failed" id="bar-fail"></div></div>
+        </div>
+        <div class="stat-card stat-hold">
+          <div class="stat-icon">⏸️</div>
+          <div class="stat-value" id="statHold">0</div>
+          <div class="stat-label" data-en="On Hold" data-ar="معلق">On Hold</div>
+          <div class="stat-bar-wrap"><div class="stat-bar stat-bar-hold" id="bar-hold"></div></div>
+        </div>
+      </div>
+
+      <!-- Recent inspections -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <div class="dash-section-title" data-en="Recent Inspections" data-ar="آخر الفحوصات">Recent Inspections</div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('inspections')">
+            <span data-en="View all" data-ar="عرض الكل">View all</span>
+          </button>
+        </div>
+        <div class="recent-table-wrap">
+          <table class="recent-table">
+            <thead>
+              <tr>
+                <th data-en="Style" data-ar="الستايل">Style</th>
+                <th data-en="PO" data-ar="أمر الشراء">PO</th>
+                <th data-en="Washing" data-ar="الغسيل">Washing</th>
+                <th data-en="Line" data-ar="الخط">Line</th>
+                <th data-en="Inspector" data-ar="المفتش">Inspector</th>
+                <th data-en="Date" data-ar="التاريخ">Date</th>
+                <th data-en="Result" data-ar="النتيجة">Result</th>
+              </tr>
+            </thead>
+            <tbody id="dash-recent-body"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="dash-empty" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title" data-en="No inspections yet" data-ar="لا توجد فحوصات بعد">No inspections yet</div>
+          <div class="empty-text" data-en="Create your first inspection to get started" data-ar="أنشئ أول فحص للبدء">Create your first inspection to get started</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ INSPECTIONS LIST ══════════ -->
+    <div class="page" id="page-inspections">
+
+      <div class="list-header">
+        <div>
+          <div class="page-title" data-en="Inspections" data-ar="الفحوصات">Inspections</div>
+          <div class="page-subtitle" data-en="All QC inspection records" data-ar="جميع سجلات فحص الجودة">All QC inspection records</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" id="exportCsvBtn">
+            📥 <span data-en="CSV" data-ar="CSV">CSV</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="exportPdfBtn">
+            📄 <span data-en="PDF" data-ar="PDF">PDF</span>
+          </button>
+          <button class="btn btn-new" onclick="navigate('new-inspection')">
+            + <span data-en="New Inspection" data-ar="فحص جديد">New Inspection</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="list-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="form-input search-input" type="text" id="inspSearch"
+                 data-placeholder-en="Search all fields..." data-placeholder-ar="البحث في جميع الحقول..."
+                 placeholder="Search all fields..." />
+        </div>
+        <div class="filter-row">
+          <input type="date" class="form-input filter-select" id="inspDateFrom" style="min-width:140px" />
+          <input type="date" class="form-input filter-select" id="inspDateTo"   style="min-width:140px" />
+          <select class="form-input filter-select" id="inspLineFilter">
+            <option value="" data-en="All Lines" data-ar="كل الخطوط">All Lines</option>
+          </select>
+          <select class="form-input filter-select" id="inspResultFilter">
+            <option value=""     data-en="All Results" data-ar="كل النتائج">All Results</option>
+            <option value="pass" data-en="Pass"        data-ar="ناجح">Pass</option>
+            <option value="fail" data-en="Fail"        data-ar="راسب">Fail</option>
+            <option value="hold" data-en="Hold"        data-ar="معلق">Hold</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="inspClearFilters">
+            <span data-en="Clear" data-ar="مسح">Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="list-meta" id="inspMeta"></div>
+
+      <div class="dash-section">
+        <div class="recent-table-wrap">
+          <table class="recent-table" id="inspTable">
+            <thead>
+              <tr>
+                <th data-en="Style"     data-ar="الستايل">Style</th>
+                <th data-en="PO"        data-ar="أمر الشراء">PO</th>
+                <th data-en="Washing"   data-ar="الغسيل">Washing</th>
+                <th data-en="Line"      data-ar="الخط">Line</th>
+                <th data-en="Qty"       data-ar="الكمية">Qty</th>
+                <th data-en="Inspector" data-ar="المفتش">Inspector</th>
+                <th data-en="Date"      data-ar="التاريخ">Date</th>
+                <th data-en="Defects"   data-ar="العيوب">Defects</th>
+                <th data-en="Def. Qty"  data-ar="كمية العيوب">Def. Qty</th>
+                <th data-en="Result"    data-ar="النتيجة">Result</th>
+                <th data-en="Actions"   data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inspBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="inspEmpty" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title" data-en="No inspections found" data-ar="لا توجد فحوصات">No inspections found</div>
+          <div class="empty-text"  data-en="Try adjusting your search or filters" data-ar="حاول تعديل البحث أو الفلاتر">Try adjusting your search or filters</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px">
+        <div class="per-page-wrap">
+          <span data-en="Show:" data-ar="عرض:">Show:</span>
+          <select class="per-page-select" id="inspPerPage">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span data-en="per page" data-ar="لكل صفحة">per page</span>
+        </div>
+        <div class="pagination-row" id="inspPagination"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ NEW / EDIT INSPECTION ══════════ -->
+    <div class="page" id="page-new-inspection">
+
+      <div class="form-page-header">
+        <div>
+          <div class="page-title" id="insp-form-title" data-en="New Inspection" data-ar="فحص جديد">New Inspection</div>
+          <div class="page-subtitle" id="insp-form-subtitle"
+               data-en="Fill in the details below" data-ar="أدخل التفاصيل أدناه">Fill in the details below</div>
+        </div>
+        <div class="form-page-actions">
+          <button class="btn btn-ghost btn-sm" onclick="navigate('inspections')">
+            ← <span data-en="Back" data-ar="رجوع">Back</span>
+          </button>
+          <button class="btn btn-new" id="saveInspBtn">
+            <span data-en="Save Inspection" data-ar="حفظ الفحص">Save Inspection</span>
+          </button>
+        </div>
+      </div>
+
+      <input type="hidden" id="editInspId" />
+      <input type="hidden" id="reInspOrigId" />
+
+      <!-- Re-inspection notice -->
+      <div class="reinsp-notice" id="reInspNotice" style="display:none"></div>
+
+      <!-- Main details card -->
+      <div class="form-card">
+        <div class="form-card-title" data-en="Inspection Details" data-ar="تفاصيل الفحص">Inspection Details</div>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Style" data-ar="الستايل">Style</span> <span class="req">*</span>
+            </label>
+            <input type="text" class="form-input" id="fStyle"
+                   data-placeholder-en="e.g. ST-2024-A" data-placeholder-ar="مثال: ST-2024-A"
+                   placeholder="e.g. ST-2024-A" />
+            <div class="field-error" id="fStyleErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="PO Number" data-ar="رقم أمر الشراء">PO Number</span> <span class="req">*</span>
+            </label>
+            <input type="text" class="form-input" id="fPO"
+                   data-placeholder-en="e.g. PO-10045" data-placeholder-ar="مثال: PO-10045"
+                   placeholder="e.g. PO-10045" />
+            <div class="field-error" id="fPOErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Washing Name" data-ar="اسم الغسيل">Washing Name</span> <span class="req">*</span>
+            </label>
+            <input type="text" class="form-input" id="fWashing"
+                   data-placeholder-en="e.g. Stone Wash" data-placeholder-ar="مثال: غسيل الحجر"
+                   placeholder="e.g. Stone Wash" />
+            <div class="field-error" id="fWashingErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Line" data-ar="الخط">Line</span> <span class="req">*</span>
+            </label>
+            <select class="form-input" id="fLine">
+              <option value="" data-en="Select line..." data-ar="اختر الخط...">Select line...</option>
+            </select>
+            <div class="field-error" id="fLineErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Quantity" data-ar="الكمية">Quantity</span>
+            </label>
+            <input type="number" class="form-input" id="fQty" min="1"
+                   data-placeholder-en="e.g. 200" data-placeholder-ar="مثال: 200"
+                   placeholder="e.g. 200" />
+            <div class="field-error" id="fQtyErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Inspector Name" data-ar="اسم المفتش">Inspector Name</span> <span class="req">*</span>
+            </label>
+            <input type="text" class="form-input" id="fInspector"
+                   data-placeholder-en="Inspector's name" data-placeholder-ar="اسم المفتش"
+                   placeholder="Inspector's name" />
+            <div class="field-error" id="fInspectorErr"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-en="Date" data-ar="التاريخ">Date</span> <span class="req">*</span>
+            </label>
+            <input type="date" class="form-input" id="fDate" />
+            <div class="field-error" id="fDateErr"></div>
+          </div>
+
+          <div class="form-group form-group-full">
+            <label class="form-label" data-en="Result" data-ar="النتيجة">Result <span class="req">*</span></label>
+            <div class="status-selector" id="resultSelector">
+              <button type="button" class="status-opt" data-result="pass"
+                      data-en="✅ Pass" data-ar="✅ ناجح">✅ Pass</button>
+              <button type="button" class="status-opt" data-result="fail"
+                      data-en="❌ Fail" data-ar="❌ راسب">❌ Fail</button>
+              <button type="button" class="status-opt" data-result="hold"
+                      data-en="⏸️ Hold" data-ar="⏸️ معلق">⏸️ Hold</button>
+            </div>
+            <input type="hidden" id="fResult" />
+            <div class="field-error" id="fResultErr"></div>
+          </div>
+
+          <div class="form-group form-group-full">
+            <label class="form-label" data-en="Notes" data-ar="ملاحظات">Notes</label>
+            <textarea class="form-input form-textarea" id="fNotes"
+                      data-placeholder-en="Any additional notes..." data-placeholder-ar="أي ملاحظات إضافية..."
+                      placeholder="Any additional notes..."></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Defects card -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-title" data-en="Defects" data-ar="العيوب">Defects</div>
+          <button type="button" class="btn btn-ghost btn-sm" id="addDefectRowBtn">
+            + <span data-en="Add Defect" data-ar="إضافة عيب">Add Defect</span>
+          </button>
+        </div>
+        <div id="defectRowsContainer"></div>
+        <div class="defects-empty" id="defectEmpty">
+          <span data-en="No defects added yet. Click + Add Defect to log one."
+                data-ar="لم تتم إضافة أي عيوب بعد. انقر على + إضافة عيب.">
+            No defects added yet. Click + Add Defect to log one.
+          </span>
+        </div>
+      </div>
+
+      <!-- Inspection photos card -->
+      <div class="form-card">
+        <div class="form-card-title" data-en="Inspection Photos (max 5)" data-ar="صور الفحص (حد 5)">
+          Inspection Photos (max 5)
+        </div>
+        <div class="photo-section">
+          <div class="photo-upload-area">
+            <button type="button" class="photo-add-btn" id="inspPhotoAddBtn">
+              📷 <span data-en="Add Photos" data-ar="إضافة صور">Add Photos</span>
+            </button>
+            <span style="font-size:13px;color:var(--text-muted)"
+                  data-en="Any image format, compressed automatically"
+                  data-ar="أي صيغة صورة، يتم ضغطها تلقائياً">
+              Any image format, compressed automatically
+            </span>
+            <input type="file" id="inspImageInput" accept="image/*" multiple hidden />
+          </div>
+          <div class="photo-previews" id="inspImageThumbs"></div>
+        </div>
+      </div>
+
+      <div class="form-bottom-actions">
+        <button class="btn btn-ghost" onclick="navigate('inspections')">
+          <span data-en="Cancel" data-ar="إلغاء">Cancel</span>
+        </button>
+        <button class="btn btn-new" id="saveInspBtn2">
+          <span data-en="Save Inspection" data-ar="حفظ الفحص">Save Inspection</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ══════════ DETAIL VIEW ══════════ -->
+    <div class="page" id="page-detail">
+
+      <div class="detail-header">
+        <button class="btn btn-ghost btn-sm" id="detailBackBtn">
+          ← <span data-en="Back to Inspections" data-ar="رجوع إلى الفحوصات">Back to Inspections</span>
+        </button>
+        <div class="detail-header-actions" id="detailActions"></div>
+      </div>
+
+      <div id="detailContent"></div>
+
+    </div>
+
+    <!-- ══════════ DEFECTS MANAGEMENT ══════════ -->
+    <div class="page" id="page-defects-mgmt">
+      <div class="mgmt-header">
+        <div>
+          <div class="page-title" data-en="Defects List" data-ar="قائمة العيوب">Defects List</div>
+          <div class="page-subtitle" data-en="Manage predefined defect names" data-ar="إدارة أسماء العيوب المحددة مسبقاً">Manage predefined defect names</div>
+        </div>
+        <button class="btn btn-new btn-sm" id="addDefectListBtn">
+          + <span data-en="Add Defect" data-ar="إضافة عيب">Add Defect</span>
+        </button>
+      </div>
+      <div class="dash-section">
+        <div class="recent-table-wrap">
+          <table class="recent-table">
+            <thead>
+              <tr>
+                <th style="width:48px">#</th>
+                <th data-en="Defect Name" data-ar="اسم العيب">Defect Name</th>
+                <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="defectsListBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="defectsEmpty" style="display:none">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-title" data-en="No defects in list" data-ar="لا توجد عيوب">No defects in list</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ STAGES MANAGEMENT ══════════ -->
+    <div class="page" id="page-stages-mgmt">
+      <div class="mgmt-header">
+        <div>
+          <div class="page-title" data-en="Stages" data-ar="المراحل">Stages</div>
+          <div class="page-subtitle" data-en="Manage predefined defect stages" data-ar="إدارة مراحل العيوب المحددة مسبقاً">Manage predefined defect stages</div>
+        </div>
+        <button class="btn btn-new btn-sm" id="addStageBtn">
+          + <span data-en="Add Stage" data-ar="إضافة مرحلة">Add Stage</span>
+        </button>
+      </div>
+      <div class="dash-section">
+        <div class="recent-table-wrap">
+          <table class="recent-table">
+            <thead>
+              <tr>
+                <th style="width:48px">#</th>
+                <th data-en="Stage Name" data-ar="اسم المرحلة">Stage Name</th>
+                <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stagesListBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="stagesEmpty" style="display:none">
+          <div class="empty-icon">📍</div>
+          <div class="empty-title" data-en="No stages added yet" data-ar="لا توجد مراحل بعد">No stages added yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ LINES MANAGEMENT ══════════ -->
+    <div class="page" id="page-lines-mgmt">
+      <div class="mgmt-header">
+        <div>
+          <div class="page-title" data-en="Lines" data-ar="الخطوط">Lines</div>
+          <div class="page-subtitle" data-en="Manage production lines" data-ar="إدارة خطوط الإنتاج">Manage production lines</div>
+        </div>
+        <button class="btn btn-new btn-sm" id="addLineBtn">
+          + <span data-en="Add Line" data-ar="إضافة خط">Add Line</span>
+        </button>
+      </div>
+      <div class="dash-section">
+        <div class="recent-table-wrap">
+          <table class="recent-table">
+            <thead>
+              <tr>
+                <th style="width:48px">#</th>
+                <th data-en="Line Name" data-ar="اسم الخط">Line Name</th>
+                <th data-en="Actions" data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="linesBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="linesEmpty" style="display:none">
+          <div class="empty-icon">🏭</div>
+          <div class="empty-title" data-en="No lines added" data-ar="لا توجد خطوط">No lines added</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ USERS MANAGEMENT ══════════ -->
+    <div class="page" id="page-users-mgmt">
+      <div class="mgmt-header">
+        <div>
+          <div class="page-title" data-en="Users" data-ar="المستخدمون">Users</div>
+          <div class="page-subtitle" data-en="Manage accounts and assign roles" data-ar="إدارة الحسابات وتعيين الأدوار">Manage accounts and assign roles</div>
+        </div>
+      </div>
+      <div class="mgmt-toolbar">
+        <div class="search-wrap" style="max-width:300px">
+          <span class="search-icon">🔍</span>
+          <input class="form-input search-input" type="text" id="usersSearch"
+                 data-placeholder-en="Search by username..." data-placeholder-ar="البحث باسم المستخدم..."
+                 placeholder="Search by username..." />
+        </div>
+        <select class="form-input filter-select" id="usersRoleFilter">
+          <option value=""            data-en="All Roles"   data-ar="كل الأدوار">All Roles</option>
+          <option value="admin"       data-en="Admin"       data-ar="مسؤول">Admin</option>
+          <option value="supervisor"  data-en="Supervisor"  data-ar="مشرف">Supervisor</option>
+          <option value="inspector"   data-en="Inspector"   data-ar="مفتش">Inspector</option>
+        </select>
+      </div>
+      <div class="dash-section">
+        <div class="recent-table-wrap">
+          <table class="recent-table" id="usersTable">
+            <thead>
+              <tr>
+                <th data-en="Avatar"     data-ar="الصورة">Avatar</th>
+                <th data-en="Username"   data-ar="اسم المستخدم">Username</th>
+                <th data-en="Role"       data-ar="الدور">Role</th>
+                <th data-en="Registered" data-ar="تاريخ التسجيل">Registered</th>
+                <th data-en="Actions"    data-ar="الإجراءات">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="usersEmpty" style="display:none">
+          <div class="empty-icon">👥</div>
+          <div class="empty-title" data-en="No users found" data-ar="لا يوجد مستخدمون">No users found</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ BACKUP & RESTORE ══════════ -->
+    <div class="page" id="page-backup">
+      <div class="mgmt-header">
+        <div>
+          <div class="page-title" data-en="Backup &amp; Restore" data-ar="النسخ والاستعادة">Backup &amp; Restore</div>
+          <div class="page-subtitle" data-en="Export or restore all system data" data-ar="تصدير أو استعادة جميع بيانات النظام">Export or restore all system data</div>
+        </div>
+      </div>
+      <div class="backup-grid">
+        <div class="backup-card">
+          <div class="backup-card-icon export">💾</div>
+          <div class="backup-card-title" data-en="Export Backup" data-ar="تصدير النسخة الاحتياطية">Export Backup</div>
+          <div class="backup-card-desc"
+               data-en="Download all inspections, users, defects, lines and settings as a JSON file."
+               data-ar="تحميل جميع الفحوصات والمستخدمين والعيوب والخطوط والإعدادات كملف JSON.">
+            Download all inspections, users, defects, lines and settings as a JSON file.
+          </div>
+          <button class="btn btn-new" id="exportBackupBtn" style="width:100%">
+            💾 <span data-en="Download Backup" data-ar="تحميل النسخة الاحتياطية">Download Backup</span>
+          </button>
+        </div>
+        <div class="backup-card">
+          <div class="backup-card-icon restore">♻️</div>
+          <div class="backup-card-title" data-en="Restore Backup" data-ar="استعادة النسخة الاحتياطية">Restore Backup</div>
+          <div class="backup-card-desc"
+               data-en="Upload a previously exported JSON file to restore all data."
+               data-ar="رفع ملف JSON تم تصديره مسبقاً لاستعادة جميع البيانات.">
+            Upload a previously exported JSON file to restore all data.
+          </div>
+          <div class="backup-warn">
+            ⚠️ <span data-en="Warning: This will overwrite ALL current data."
+                     data-ar="تحذير: سيؤدي هذا إلى استبدال جميع البيانات الحالية.">
+              Warning: This will overwrite ALL current data.
+            </span>
+          </div>
+          <button class="btn btn-ghost" id="importBackupBtn" style="width:100%">
+            ♻️ <span data-en="Upload &amp; Restore" data-ar="رفع واستعادة">Upload &amp; Restore</span>
+          </button>
+          <input type="file" id="restoreFileInput" accept=".json" hidden />
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════
+     MODALS
+════════════════════════════════════ -->
+
+<!-- Delete confirmation -->
+<div class="modal-backdrop" id="delete-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title" data-en="Confirm Delete" data-ar="تأكيد الحذف">Confirm Delete</div>
+    <div class="modal-text" id="delete-modal-msg">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-delete-btn"
+              data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn"
+              data-en="Delete" data-ar="حذف">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Defect add/edit modal -->
+<div class="modal-backdrop" id="defect-modal" style="display:none">
+  <div class="modal modal-input">
+    <div class="modal-title" id="defect-modal-title" data-en="Add Defect" data-ar="إضافة عيب">Add Defect</div>
+    <div class="form-group">
+      <label class="form-label" data-en="Defect Name" data-ar="اسم العيب">Defect Name</label>
+      <input type="text" class="form-input" id="defect-modal-input"
+             data-placeholder-en="Enter defect name" data-placeholder-ar="أدخل اسم العيب"
+             placeholder="Enter defect name" />
+      <div class="field-error" id="defect-modal-err"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-defect-btn"
+              data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      <button class="btn btn-new" id="save-defect-btn"
+              data-en="Save" data-ar="حفظ">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stage add/edit modal -->
+<div class="modal-backdrop" id="stage-modal" style="display:none">
+  <div class="modal modal-input">
+    <div class="modal-title" id="stage-modal-title" data-en="Add Stage" data-ar="إضافة مرحلة">Add Stage</div>
+    <div class="form-group">
+      <label class="form-label" data-en="Stage Name" data-ar="اسم المرحلة">Stage Name</label>
+      <input type="text" class="form-input" id="stage-modal-input"
+             data-placeholder-en="e.g. Waistband" data-placeholder-ar="مثال: الخصر"
+             placeholder="e.g. Waistband" />
+      <div class="field-error" id="stage-modal-err"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-stage-btn"
+              data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      <button class="btn btn-new" id="save-stage-btn"
+              data-en="Save" data-ar="حفظ">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Line add modal -->
+<div class="modal-backdrop" id="line-modal" style="display:none">
+  <div class="modal modal-input">
+    <div class="modal-title" data-en="Add Line" data-ar="إضافة خط">Add Line</div>
+    <div class="form-group">
+      <label class="form-label" data-en="Line Name / Number" data-ar="اسم/رقم الخط">Line Name / Number</label>
+      <input type="text" class="form-input" id="line-modal-input"
+             data-placeholder-en="e.g. 30" data-placeholder-ar="مثال: 30"
+             placeholder="e.g. 30" />
+      <div class="field-error" id="line-modal-err"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-line-btn"
+              data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      <button class="btn btn-new" id="save-line-btn"
+              data-en="Add Line" data-ar="إضافة خط">Add Line</button>
+    </div>
+  </div>
+</div>
+
+<!-- Role change modal -->
+<div class="modal-backdrop" id="role-modal" style="display:none">
+  <div class="modal modal-input">
+    <div class="modal-title" data-en="Change Role" data-ar="تغيير الدور">Change Role</div>
+    <div class="form-group">
+      <label class="form-label" id="role-modal-user-label"></label>
+      <select class="form-input" id="role-modal-select">
+        <option value="inspector"  data-en="Inspector"  data-ar="مفتش">Inspector</option>
+        <option value="supervisor" data-en="Supervisor" data-ar="مشرف">Supervisor</option>
+        <option value="admin"      data-en="Admin"      data-ar="مسؤول">Admin</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-role-btn"
+              data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      <button class="btn btn-new" id="save-role-btn"
+              data-en="Save" data-ar="حفظ">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="ui.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="inspections.js"></script>
+<script src="defects.js"></script>
+<script src="stages.js"></script>
+<script src="lines.js"></script>
+<script src="users.js"></script>
+<script src="backup.js"></script>
+
+</body>
+</html>

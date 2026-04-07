@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T&C QC Inspection System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Theme + Language controls -->
+<div class="auth-controls">
+  <button class="auth-ctrl-btn" id="themeToggle" aria-label="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
+  <button class="auth-ctrl-btn" id="langToggle" aria-label="Toggle language">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span id="langLabel">EN</span>
+  </button>
+</div>
+
+<!-- Auth Layer -->
+<div id="auth-layer">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logo-icon">✅</div>
+      <div class="auth-logo-text">T&amp;<span>C</span></div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <div class="auth-title" data-en="Welcome back" data-ar="مرحباً بعودتك">Welcome back</div>
+      <div class="auth-subtitle" data-en="Sign in to your inspection workspace" data-ar="سجّل دخولك إلى نظام الفحص">Sign in to your inspection workspace</div>
+
+      <div class="auth-error" id="login-error"></div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Username" data-ar="اسم المستخدم">Username</label>
+        <input class="form-input" type="text" id="login-username"
+               data-placeholder-en="Enter your username" data-placeholder-ar="أدخل اسم المستخدم"
+               placeholder="Enter your username" autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
+        <div class="pass-wrap">
+          <input class="form-input" type="password" id="login-password"
+                 data-placeholder-en="Enter your password" data-placeholder-ar="أدخل كلمة المرور"
+                 placeholder="Enter your password" autocomplete="current-password" />
+          <button class="toggle-pass-btn" data-target="login-password" type="button" aria-label="Show/hide password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <label class="remember-row">
+        <input type="checkbox" id="rememberMe" />
+        <span class="remember-check"></span>
+        <span data-en="Remember me" data-ar="تذكرني">Remember me</span>
+      </label>
+
+      <button class="btn btn-primary" id="login-btn" data-en="Sign In" data-ar="تسجيل الدخول">Sign In</button>
+
+      <div class="auth-switch">
+        <span data-en="Don't have an account?" data-ar="ليس لديك حساب؟">Don't have an account?</span>
+        <a id="show-register-link" data-en="Create one" data-ar="أنشئ حساباً"> Create one</a>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="register-form" style="display:none">
+      <div class="auth-title" data-en="Create account" data-ar="إنشاء حساب">Create account</div>
+      <div class="auth-subtitle" data-en="Join your team's QC workspace" data-ar="انضم إلى نظام مراقبة الجودة">Join your team's QC workspace</div>
+
+      <div class="auth-error"   id="register-error"></div>
+      <div class="auth-success" id="register-success"></div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Username" data-ar="اسم المستخدم">Username</label>
+        <input class="form-input" type="text" id="reg-username"
+               data-placeholder-en="Choose a username (min 3 chars)" data-placeholder-ar="اختر اسم مستخدم (3 أحرف على الأقل)"
+               placeholder="Choose a username (min 3 chars)" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Password" data-ar="كلمة المرور">Password</label>
+        <div class="pass-wrap">
+          <input class="form-input" type="password" id="reg-password"
+                 data-placeholder-en="Create a password (min 6 chars)" data-placeholder-ar="أنشئ كلمة مرور (6 أحرف على الأقل)"
+                 placeholder="Create a password (min 6 chars)" autocomplete="new-password" />
+          <button class="toggle-pass-btn" data-target="reg-password" type="button" aria-label="Show/hide password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-en="Confirm Password" data-ar="تأكيد كلمة المرور">Confirm Password</label>
+        <div class="pass-wrap">
+          <input class="form-input" type="password" id="reg-confirm"
+                 data-placeholder-en="Repeat your password" data-placeholder-ar="كرر كلمة المرور"
+                 placeholder="Repeat your password" autocomplete="new-password" />
+          <button class="toggle-pass-btn" data-target="reg-confirm" type="button" aria-label="Show/hide password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="register-btn" data-en="Create Account" data-ar="إنشاء الحساب">Create Account</button>
+
+      <div class="auth-switch">
+        <span data-en="Already have an account?" data-ar="لديك حساب بالفعل؟">Already have an account?</span>
+        <a id="show-login-link" data-en="Sign in" data-ar="سجّل الدخول"> Sign in</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

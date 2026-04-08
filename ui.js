@@ -22,16 +22,34 @@ const PERMISSIONS = {
 
 /* ── Init ── */
 async function initApp() {
-  // Show loading state
-  document.body.style.opacity = '0';
+  document.body.style.opacity = '0.5';
 
   try {
     const session = await SB_Auth.getSession();
     if (!session) { window.location.href = 'index.html'; return; }
 
-    // Get full profile from Supabase
-    const profile = await SB_Profiles.getById(session.user.id);
-    if (!profile)  { window.location.href = 'index.html'; return; }
+    // Get full profile — retry once in case trigger is slow
+    let profile = await SB_Profiles.getById(session.user.id);
+    if (!profile) {
+      await new Promise(r => setTimeout(r, 1500));
+      profile = await SB_Profiles.getById(session.user.id);
+    }
+
+    // If still no profile, create one from session metadata
+    if (!profile) {
+      const meta = session.user.user_metadata || {};
+      const username = meta.username || session.user.email?.split('@')[0] || 'user';
+      try {
+        await _supabase.from('profiles').insert([{
+          id: session.user.id,
+          username,
+          role: 'inspector'
+        }]);
+        profile = { id: session.user.id, username, role: 'inspector' };
+      } catch {}
+    }
+
+    if (!profile) { window.location.href = 'index.html'; return; }
 
     currentUser = {
       id:       session.user.id,
@@ -39,20 +57,17 @@ async function initApp() {
       role:     profile.role,
     };
 
-    // Load settings from Supabase
     await loadPreferences();
     renderUserBadge();
     applyRoleVisibility();
     bindAppEvents();
     bindPopState();
 
-    // Subscribe to real-time inspection updates
     SB_Realtime.subscribeToInspections(() => {
       if (currentSection === 'dashboard')   renderDashboard?.();
       if (currentSection === 'inspections') renderInspections?.();
     });
 
-    // Check URL hash to restore section
     const hash    = window.location.hash.replace('#', '');
     const allowed = PERMISSIONS[currentUser.role] || PERMISSIONS.inspector;
     if (hash && allowed.includes(hash)) navigate(hash);
@@ -60,7 +75,19 @@ async function initApp() {
 
   } catch (err) {
     console.error('Init error:', err);
-    window.location.href = 'index.html';
+    // Don't redirect on network error — show a retry option
+    document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;font-family:sans-serif;color:#f0f4ff;background:#0f1b2d">
+        <div style="font-size:36px">⚠️</div>
+        <div style="font-size:16px;font-weight:600">Connection error</div>
+        <div style="font-size:13px;color:#a8b4cc">Check your internet and try again</div>
+        <button onclick="window.location.reload()" style="padding:10px 24px;background:#6c63ff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">
+          Retry
+        </button>
+        <button onclick="window.location.href='index.html'" style="padding:10px 24px;background:transparent;color:#a8b4cc;border:1px solid #4a5568;border-radius:8px;font-size:14px;cursor:pointer">
+          Back to Login
+        </button>
+      </div>`;
   } finally {
     document.body.style.opacity = '1';
     document.body.style.transition = 'opacity 0.3s ease';

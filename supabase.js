@@ -1,12 +1,14 @@
 /* ============================================================
    supabase.js — Supabase Client + All DB Operations
-   Replaces db.js (LocalStorage) and ImageDB (IndexedDB)
    ============================================================ */
 
-const SUPABASE_URL  = 'https://nfjioffkvfnndhrhkctw.supabase.co';
-const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mamlvZmZrdmZubmRocmhrY3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjI5OTYsImV4cCI6MjA5MDk5ODk5Nn0.Swa6f-DK0EO9m4tNjH6yNjxCFAZ3OVydDJjJYvunfAk';
+const SUPABASE_URL = 'https://nfjioffkvfnndhrhkctw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mamlvZmZrdmZubmRocmhrY3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjI5OTYsImV4cCI6MjA5MDk5ODk5Nn0.Swa6f-DK0EO9m4tNjH6yNjxCFAZ3OVydDJjJYvunfAk';
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Handle both CDN export formats
+const _supabase = (window.supabase?.createClient || window.supabaseJs?.createClient)(SUPABASE_URL, SUPABASE_KEY);
+
+console.log('[Supabase] Client ready:', !!_supabase);
 
 /* ============================================================
    AUTH
